@@ -1,0 +1,5 @@
+**/lib/**/*
+*.zip
+*.nupkg
+ValidateJson/ValidateJson.nuspec
+ValidateJson/ValidateJson.psd1

@@ -1,0 +1,24 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>
+    </id>
+    <version>0.0.1</version>
+    <authors>mdlopresti</authors>
+    <projectUrl>
+    </projectUrl>
+    <description>Implementation of Test-Json for Powershell 5.1</description>
+    <license type="expression">MIT</license>
+    <releaseNotes>
+    </releaseNotes>
+    <copyright>
+    </copyright>
+    <tags>PSEdition_Desktop</tags>
+  </metadata>
+  <files>
+    <file src="..\ReadMe.md" target="docs\" />
+    <file src="lib\**\*.dll" target="lib\" />
+    <file src="*.psm1" />
+    <file src="*.psd1" />
+  </files>
+</package>

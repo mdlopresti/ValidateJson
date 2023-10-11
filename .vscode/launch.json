@@ -1,0 +1,27 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "Invoke-Build Default Task",
+            "script": "Invoke-Build",
+            "args": [
+                ".",
+                "${file}"
+            ],
+            "cwd": "${workspaceRoot}"
+        },
+        {
+            "type": "PowerShell",
+            "request": "launch",
+            "name": "Invoke-Build Current Task",
+            "script": "Invoke-TaskFromVSCode",
+            "args": [],
+            "cwd": "${workspaceRoot}"
+        }
+    ]
+}
