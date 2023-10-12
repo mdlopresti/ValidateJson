@@ -1,8 +1,12 @@
 run-name: ${{ github.actor }} ${{ github.event_name }}
 on:
   push:
+    branches:
+      - feature/*
+      - main
   pull_request:
-    branches: [main]
+    branches:
+      - main
 
 env:
   SHELL: powershell
