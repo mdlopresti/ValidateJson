@@ -149,5 +149,5 @@ task rebuild clean, generate_manifest, install_packages
 task package rebuild, generate_package, analyze
 
 task publish install_packages, generate_package, {
-    Publish-Module -Path "$BuildRoot\dist\$module_name" -NuGetApiKey $env:NuGetApiKey
+    Publish-Module -Path "$BuildRoot\dist\$module_name" -NuGetApiKey $env:NuGetApiKey -Force
 }
