@@ -1,5 +1,5 @@
 name: CI
-run-name: ${{ github.actor }} CI
+run-name: ${{ github.actor }} CI ${{ github.event }}
 on:
   push:
   pull_request:
@@ -25,14 +25,30 @@ jobs:
       - name: InvokeBuild validate
         run: Invoke-Build validate
 
+      - name: Set Version
+        id: version
+        run: |
+          $versionNumber = (Import-PowerShellDataFile .\src\ValidateJson\ValidateJson.psd1)["ModuleVersion"]
+          echo "version_number=$versionNumber" >> $GITHUB_OUTPUT
+
       - name: InvokeBuild generate_package
-        if: github.event_name == 'pull_request'
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
         run: Invoke-Build generate_package -zipPackage $true
 
-      - name: Save
-        if: github.event_name == 'pull_request'
+      - name: Save Package
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
         uses: actions/upload-artifact@v3
         with:
           name: package
           path: dist/ValidateJson.zip
           retention-days: 7
+
+      - name: Create Release
+        if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }} ${{ steps.version.outputs.version_number }}
+          prerelease: ${{ github.ref != 'refs/heads/main' }}
