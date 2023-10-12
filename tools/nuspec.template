@@ -5,6 +5,7 @@
     </id>
     <version>0.0.1</version>
     <authors>mdlopresti</authors>
+    <readme/>
     <projectUrl>
     </projectUrl>
     <description>Implementation of Test-Json for Powershell 5.1</description>

@@ -17,7 +17,6 @@ task version {
 }
 task fetch_required_packages {
     $script:RequiredPackages = (Import-PowerShellDataFile "$BuildRoot/$module_name/PackageRequirements.psd1")['Packages']
-    Write-Build Green $script:RequiredPackages
 }
 
 # install nuget packages
@@ -45,35 +44,8 @@ task generate_nuspec fetch_required_packages, {
     $manifest.package.metadata.id = $module_name
     $manifest.package.metadata.copyright = "Copyright $($(Get-Date).Year)"
     $manifest.package.metadata.projectUrl = "https://github.com/mdlopresti/$module_name"
+    $manifest.package.metadata.readme = "docs\ReadMe.md"
 
-    if(($manifest.package.metadata.SelectNodes("dependencie")).count -ne 0) {
-        Write-Build green "HasAttribute"
-        $dependencies = $manifest.package.metadata.dependencies.GetAttribute("group")
-    }else{
-        $dependencies = ($manifest.package.metadata.AppendChild($manifest.CreateElement("dependencies"))).AppendChild($manifest.CreateElement("group"))
-    }
-
-    $script:RequiredPackages | foreach-object {
-        $stop=$false
-        $PackageName = $_['package']
-        [int]$currentVersion = $_['version'].split(".")[0]
-        $matchedPackages = $script:RequiredPackages | `
-            Where-object { $_['package'] -eq $PackageName } | `
-            foreach-object {[int]$_['version'].split(".")[0]}
-        if($matchedPackages.Length -ne 1) {
-            $highestVersion = $matchedPackages|sort -desc| select -first 1
-            if($currentVersion -ne $highestVersion ) {
-                $stop = $true
-            }
-        }
-        if(-not $stop){
-            Write-Build Green ("Adding dependency for "+ $_['package'] + "." + $_['version'])
-            $dependencyElement = $manifest.CreateElement("dependency")
-            $addedElement = $dependencies.AppendChild($dependencyElement)
-            $dependencyElement = $addedElement.SetAttribute("id",$_['package'])
-            $dependencyElement = $addedElement.SetAttribute("version",$_['version'])
-        }
-    }
     $manifest.Save($nuspecPath)
 }
 
@@ -125,7 +97,7 @@ task generate_package generate_nuspec, {
     nuget pack "$BuildRoot/$module_name/"
 }
 
-task . generate_nuspec, generate_manifest, install_packages, analyze
+task . generate_nuspec, generate_manifest, install_packages, analyze, generate_package
 
 task rebuild clean, generate_manifest, install_packages
 

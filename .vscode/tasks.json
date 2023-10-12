@@ -56,22 +56,32 @@
         {
             "label": "install_ps_dependencies",
             "type": "shell",
-            "command": "Install-Module InvokeBuild -Scope CurrentUser;Install-Script -Name Invoke-TaskFromVSCode -Scope CurrentUser",
+            "command": "Install-Module InvokeBuild,PSScriptAnalyzer -Scope CurrentUser;Install-Script -Name Invoke-TaskFromVSCode -Scope CurrentUser",
             "problemMatcher": "$msCompile"
         },
         {
             "label": "install_nuget_dependencies",
             "type": "shell",
-            "command": "if($(winget list --id Microsoft.NuGet --disable-interactivity|out-string) -like '*No installed package found*') {winget install -e --id Microsoft.NuGet}",
-            "problemMatcher": []
+            "command": "if($(winget list --id Microsoft.NuGet --disable-interactivity --accept-source-agreements|out-string) -like '*No installed package found*') {winget install -e --id Microsoft.NuGet}",
+            "problemMatcher": "$msCompile",
+            "dependsOn": [
+                "install_ps_dependencies"
+            ],
+            "runOptions": {
+                "runOn": "folderOpen",
+            }
         },
         {
-            "label": "run_dev_setup",
+            "label": "install_config_nuget_feed",
+            "type": "shell",
+            "command": "if((nuget sources | out-string) -notlike '*https://api.nuget.org/v3/index.json*') {nuget sources Add -Name 'nuget.org' -Source 'https://api.nuget.org/v3/index.json'}",
+            "problemMatcher": "$msCompile",
             "dependsOn": [
-                "install_ps_dependencies",
                 "install_nuget_dependencies"
             ],
-            "problemMatcher": []
+            "runOptions": {
+                "runOn": "folderOpen",
+            }
         }
     ]
 }
