@@ -47,6 +47,11 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Environment
+        uses: "./.github/template/setup"
+        with:
+          shell: ${{ env.SHELL }}
+
       - name: Generate Package
         run: |
           Invoke-Build clean
