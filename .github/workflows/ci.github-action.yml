@@ -39,8 +39,8 @@ jobs:
         run: Invoke-Build validate
 
   package:
+    needs: validate
     runs-on: windows-latest
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
     defaults:
       run:
         shell: ${{ env.SHELL }}
@@ -64,6 +64,26 @@ jobs:
           name: package
           path: dist/ValidateJson.zip
           retention-days: 7
+
+  release:
+    needs: package
+    runs-on: windows-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        shell: ${{ env.SHELL }}
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: package
+
+      - name: Get Version
+        id: version
+        run: |
+          Expand-Archive -Path ValidateJson.zip
+          $versionNumber = (Import-PowerShellDataFile .\ValidateJson\ValidateJson.psd1)["ModuleVersion"]
+          Write-Output "version_number=$versionNumber" >> $GITHUB_OUTPUT
+          Remove-Item -Path .\ValidateJson\ -Force -Recurse
 
       - name: Create Release
         id: create_release
