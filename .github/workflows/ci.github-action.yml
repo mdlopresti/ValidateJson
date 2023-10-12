@@ -1,0 +1,116 @@
+run-name: ${{ github.actor }} ${{ github.event_name }}
+on:
+  push:
+    branches:
+      - feature/*
+      - main
+    paths:
+      - .github/template/**
+      - .github/workflows/ci.github-action.yml
+      - src/**
+      - tools/nuspec.template
+      - ValidateJson.build.ps1
+  pull_request:
+    branches:
+      - main
+
+env:
+  SHELL: powershell
+
+jobs:
+  test:
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: ${{ env.SHELL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: "./.github/template/setup"
+        with:
+          shell: ${{ env.SHELL }}
+
+      - name: Validate
+        run: Invoke-Build validate
+
+  package:
+    needs: test
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: ${{ env.SHELL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: "./.github/template/setup"
+        with:
+          shell: ${{ env.SHELL }}
+
+      - name: Generate Package
+        run: |
+          Invoke-Build clean
+          Invoke-Build generate_package -zipPackage $true
+
+      - name: Save Package
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: dist/ValidateJson.zip
+          retention-days: 7
+
+  release:
+    needs: package
+    permissions:
+      contents: write
+    runs-on: windows-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        shell: ${{ env.SHELL }}
+    steps:
+      - uses: actions/download-artifact@v3
+        with:
+          name: package
+
+      - name: Get Version
+        id: version
+        run: |
+          Expand-Archive -Path ValidateJson.zip
+          $versionNumber = (Import-PowerShellDataFile .\ValidateJson\ValidateJson.psd1)["ModuleVersion"]
+          Write-Output "version_number=$versionNumber" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Remove-Item -Path .\ValidateJson\ -Force -Recurse
+
+      - name: Put Version Number in Package
+        run: Move-Item ValidateJson.zip ValidateJson-${{ steps.version.outputs.version_number }}.zip
+
+      - name: Build Dev Tag
+        id: dev_tag
+        if: github.ref != 'refs/heads/main'
+        env:
+          VERSION: ${{ steps.version.outputs.version_number }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          Write-Output "tag=v$env:VERSION.$env:RUN_ID" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Output "release_name=Development Release $env:VERSION.$env:RUN_ID" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Build Prod Tag
+        id: prod_tag
+        if: github.ref == 'refs/heads/main'
+        env:
+          VERSION: ${{ steps.version.outputs.version_number }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          Write-Output "tag=v$env:VERSION.$env:RUN_ID" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Output "release_name=Production Release $env:VERSION" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Create Release
+        uses: "marvinpinto/action-automatic-releases@latest"
+        with:
+          title: ${{ join(steps.*.outputs.release_name) }}
+          automatic_release_tag: ${{ join(steps.*.outputs.tag) }}
+          prerelease: ${{ github.ref != 'refs/heads/main' }}
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          files: |
+            ValidateJson-${{ steps.version.outputs.version_number }}.zip
