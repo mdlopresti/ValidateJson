@@ -1,32 +1,23 @@
 name: CI
 run-name: ${{ github.actor }} CI
 on: [push]
+
+env:
+  SHELL: powershell
+
 jobs:
   validate:
     runs-on: windows-latest
     defaults:
       run:
-        shell: powershell
+        shell: ${{ env.SHELL }}
     steps:
       - uses: actions/checkout@v4
 
-      - name: Install Powershell Modules
-        run: Install-Module InvokeBuild,PSScriptAnalyzer -Scope CurrentUser -Force
-
-      - name: Install winget
-        uses: Cyberboss/install-winget@v1
-
-      - name: Install NuGet
-        run: |
-          if($(winget list --id Microsoft.NuGet --disable-interactivity --accept-source-agreements|out-string) -like '*No installed package found*') {
-            winget install -e --id Microsoft.NuGet --disable-interactivity --accept-source-agreements
-          }
-
-      - name: Configure NuGet
-        run: |
-          if((nuget sources | out-string) -notlike '*https://api.nuget.org/v3/index.json*') {
-            nuget sources Add -Name 'nuget.org' -Source 'https://api.nuget.org/v3/index.json'
-          }
+      - name: setup
+        uses: "./.github/template/setup"
+        with:
+          shell: ${{ env.SHELL }}
 
       - name: InvokeBuild validate
         run: Invoke-Build validate

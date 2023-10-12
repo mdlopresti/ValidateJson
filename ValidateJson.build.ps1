@@ -1,7 +1,8 @@
 param(
     # Custom build root, still the original $BuildRoot by default.
     $BuildRoot = $BuildRoot,
-    $module_name = "ValidateJson"
+    $module_name = "ValidateJson",
+    $zipPackage = $false
 )
 $module_name = "ValidateJson"
 $nuspecPath = "$BuildRoot\src\$module_name.nuspec"
@@ -137,9 +138,14 @@ task generate_package generate_manifest, {
     $script:dllPaths | foreach-object {
         $fullpath = $_
         $relativePath = $fullpath.replace("$BuildRoot\src",".")
-        Copy-Item -Path $fullpath -Destination "$BuildRoot\dist\$module_name\$relativePath" -Recurse -Force
+        $targetPath = "$BuildRoot\dist\$module_name\$relativePath"
+        New-Item -Path (Split-Path -Parent $targetPath) -Name (Split-Path -leaf $targetPath ) -ItemType "directory" -Force | out-null
+        Get-ChildItem -Path $fullpath -Recurse -include "*.dll" | `
+            foreach-object {Copy-Item -Path $_ -Destination $targetPath -Recurse -Force}
     }
-
+    if($zipPackage) {
+        Compress-Archive -Path "$BuildRoot\dist\$module_name\*" -DestinationPath "$BuildRoot\dist\$module_name.zip"
+    }
 }
 
 task . generate_nuspec, generate_manifest, install_packages, analyze, generate_package
