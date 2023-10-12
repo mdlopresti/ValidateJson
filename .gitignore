@@ -1,6 +1,6 @@
 **/lib/**/*
 *.zip
 *.nupkg
-ValidateJson/ValidateJson.nuspec
-ValidateJson/ValidateJson.psd1
+src/ValidateJson.nuspec
+src/ValidateJson.psd1
 dist
