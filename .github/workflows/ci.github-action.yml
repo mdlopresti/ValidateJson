@@ -13,6 +13,9 @@ jobs:
       - name: Install Powershell Modules
         run: Install-Module InvokeBuild,PSScriptAnalyzer -Scope CurrentUser -Force
 
+      - name: Install winget
+        uses: Cyberboss/install-winget@v1
+
       - name: Install NuGet
         run: |
           if($(winget list --id Microsoft.NuGet --disable-interactivity --accept-source-agreements|out-string) -like '*No installed package found*') {
