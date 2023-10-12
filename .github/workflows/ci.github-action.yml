@@ -1,6 +1,9 @@
 name: CI
 run-name: ${{ github.actor }} CI
-on: [push]
+on:
+  push:
+  pull_request:
+    branches: [main]
 
 env:
   SHELL: powershell
@@ -14,10 +17,22 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: setup
+      - name: Setup Environment
         uses: "./.github/template/setup"
         with:
           shell: ${{ env.SHELL }}
 
       - name: InvokeBuild validate
         run: Invoke-Build validate
+
+      - name: InvokeBuild generate_package
+        if: github.event_name == 'pull_request'
+        run: Invoke-Build generate_package -zipPackage $true
+
+      - name: Save
+        if: github.event_name == 'pull_request'
+        uses: actions/upload-artifact@v3
+        with:
+          name: package
+          path: dist/ValidateJson.zip
+          retention-days: 7
