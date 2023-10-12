@@ -17,7 +17,7 @@ env:
   SHELL: powershell
 
 jobs:
-  validate:
+  test:
     runs-on: windows-latest
     defaults:
       run:
@@ -34,7 +34,7 @@ jobs:
         run: Invoke-Build validate
 
   package:
-    needs: validate
+    needs: test
     runs-on: windows-latest
     defaults:
       run:
