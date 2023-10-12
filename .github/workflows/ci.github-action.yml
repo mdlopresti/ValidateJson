@@ -10,7 +10,20 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - run: $PSVersionTable.PSVersion
-
       - name: Install Powershell Modules
         run: Install-Module InvokeBuild,PSScriptAnalyzer -Scope CurrentUser -Force
+
+      - name: Install NuGet
+        run: |
+          if($(winget list --id Microsoft.NuGet --disable-interactivity --accept-source-agreements|out-string) -like '*No installed package found*') {
+            winget install -e --id Microsoft.NuGet
+          }
+
+      - name: Configure NuGet
+        run: |
+          if((nuget sources | out-string) -notlike '*https://api.nuget.org/v3/index.json*') {
+            nuget sources Add -Name 'nuget.org' -Source 'https://api.nuget.org/v3/index.json'
+          }
+
+      - name: InvokeBuild validate
+        run: Invoke-Build validate

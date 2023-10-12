@@ -144,6 +144,8 @@ task generate_package generate_manifest, {
 
 task . generate_nuspec, generate_manifest, install_packages, analyze, generate_package
 
+task validate generate_nuspec, generate_manifest, install_packages, analyze
+
 task rebuild clean, generate_manifest, install_packages
 
 task package rebuild, generate_package, analyze
