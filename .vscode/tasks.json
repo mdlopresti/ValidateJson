@@ -35,10 +35,7 @@
             "group": {
                 "kind": "build",
                 "isDefault": true
-            },
-            "dependsOn": [
-                "Install All Dependencies"
-            ]
+            }
         },
         {
             "label": "rebuild",
