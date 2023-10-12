@@ -7,5 +7,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - run: $PSVersionTable.PSVersion
+
       - name: Install Powershell Modules
-        run: Install-Module InvokeBuild,PSScriptAnalyzer -Scope CurrentUser
+        run: Install-Module InvokeBuild,PSScriptAnalyzer -Scope CurrentUser -Force
