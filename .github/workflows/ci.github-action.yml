@@ -31,7 +31,7 @@ jobs:
       - name: Set Version
         id: version
         run: |
-          $versionNumber = (Import-PowerShellDataFile .\src\ValidateJson\ValidateJson.psd1)["ModuleVersion"]
+          $versionNumber = (Import-PowerShellDataFile .\src\ValidateJson.psd1)["ModuleVersion"]
           echo "version_number=$versionNumber" >> $GITHUB_OUTPUT
 
       - name: Validate
@@ -45,10 +45,17 @@ jobs:
         shell: ${{ env.SHELL }}
     steps:
       - uses: actions/checkout@v4
+
       - name: Generate Package
         run: |
           Invoke-Build clean
           Invoke-Build generate_package -zipPackage $true
+
+      - name: Set Version
+        id: version
+        run: |
+          $versionNumber = (Import-PowerShellDataFile .\src\ValidateJson.psd1)["ModuleVersion"]
+          echo "version_number=$versionNumber" >> $GITHUB_OUTPUT
 
       - name: Save Package
         uses: actions/upload-artifact@v3
