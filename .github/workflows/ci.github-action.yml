@@ -25,20 +25,6 @@ jobs:
         with:
           shell: ${{ env.SHELL }}
 
-      - name: Generate Module Manifest
-        run: Invoke-Build generate_manifest
-
-      - name: Show Directory Structure
-        run: Get-ChildItem . -Exclude .git -Recurse | Select-Object -ExpandProperty Fullname
-
-      - name: Set Version
-        id: version
-        run: |
-          $versionNumber = (Import-PowerShellDataFile .\src\ValidateJson.psd1)["ModuleVersion"]
-          Write-Output "version_number=$versionNumber" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-
-      - run: Write-Host "${{ steps.version.outputs.version_number }}"
-
       - name: Validate
         run: Invoke-Build validate
 
