@@ -1,5 +1,4 @@
-name: CI
-run-name: ${{ github.actor }} ${{ github.event_name }} CI
+run-name: ${{ github.actor }} ${{ github.event_name }}
 on:
   push:
   pull_request:
@@ -17,9 +16,6 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Show Directory Structure
-        run: Get-ChildItem . -Exclude .git -Recurse | Select-Object -ExpandProperty Fullname
-
       - name: Setup Environment
         uses: "./.github/template/setup"
         with:
@@ -28,11 +24,16 @@ jobs:
       - name: Generate Module Manifest
         run: Invoke-Build generate_manifest
 
+      - name: Show Directory Structure
+        run: Get-ChildItem . -Exclude .git -Recurse | Select-Object -ExpandProperty Fullname
+
       - name: Set Version
         id: version
         run: |
           $versionNumber = (Import-PowerShellDataFile .\src\ValidateJson.psd1)["ModuleVersion"]
           echo "version_number=$versionNumber" >> $GITHUB_OUTPUT
+
+      - run: Write-Host "${{ steps.version.outputs.version_number }}"
 
       - name: Validate
         run: Invoke-Build validate
@@ -51,7 +52,7 @@ jobs:
           Invoke-Build clean
           Invoke-Build generate_package -zipPackage $true
 
-      - name: Set Version
+      - name: Get Version
         id: version
         run: |
           $versionNumber = (Import-PowerShellDataFile .\src\ValidateJson.psd1)["ModuleVersion"]
@@ -65,10 +66,21 @@ jobs:
           retention-days: 7
 
       - name: Create Release
+        id: create_release
         uses: actions/create-release@v1
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }} # This token is provided by Actions, you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
           tag_name: ${{ github.ref }}
           release_name: Release ${{ github.ref }} ${{ steps.version.outputs.version_number }}
           prerelease: ${{ github.ref != 'refs/heads/main' }}
+
+      - name: Upload Release Asset
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: dist/ValidateJson.zip
+          asset_name: ValidateJson-${{ steps.version.outputs.version_number }}.zip
+          asset_content_type: application/zip
