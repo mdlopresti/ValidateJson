@@ -19,7 +19,7 @@ jobs:
       - name: Install NuGet
         run: |
           if($(winget list --id Microsoft.NuGet --disable-interactivity --accept-source-agreements|out-string) -like '*No installed package found*') {
-            winget install -e --id Microsoft.NuGet
+            winget install -e --id Microsoft.NuGet --disable-interactivity --accept-source-agreements
           }
 
       - name: Configure NuGet
