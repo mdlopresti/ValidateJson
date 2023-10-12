@@ -47,17 +47,11 @@ jobs:
           Invoke-Build clean
           Invoke-Build generate_package -zipPackage $true
 
-      - name: Get Version
-        id: version
-        run: |
-          $versionNumber = (Import-PowerShellDataFile .\src\ValidateJson.psd1)["ModuleVersion"]
-          Write-Output "version_number=$versionNumber" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-
       - name: Save Package
         uses: actions/upload-artifact@v3
         with:
           name: package
-          path: dist/ValidateJson-${{ steps.version.outputs.version_number }}.zip
+          path: dist/ValidateJson.zip
           retention-days: 7
 
   release:
