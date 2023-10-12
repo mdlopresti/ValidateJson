@@ -84,8 +84,18 @@ jobs:
       - name: Put Version Number in Package
         run: Move-Item ValidateJson.zip ValidateJson-${{ steps.version.outputs.version_number }}.zip
 
-      - name: Build Tag
-        id: tag
+      - name: Build Dev Tag
+        id: dev_tag
+        if: github.ref != 'refs/heads/main'
+        env:
+          VERSION: ${{ steps.version.outputs.version_number }}
+          RUN_ID: ${{ github.run_id }}
+        run: |
+          Write-Output "tag=v$env:VERSION.$env:RUN_ID" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+
+      - name: Build Prod Tag
+        id: prod_tag
+        if: github.ref == 'refs/heads/main'
         env:
           VERSION: ${{ steps.version.outputs.version_number }}
           RUN_ID: ${{ github.run_id }}
@@ -96,7 +106,7 @@ jobs:
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
           title: Release ${{ github.ref }} ${{ steps.version.outputs.version_number }}
-          automatic_release_tag: ${{ steps.tag.outputs.tag }}
+          automatic_release_tag: ${{ join(steps.*.outputs.tag) }}
           prerelease: ${{ github.ref != 'refs/heads/main' }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
           files: |
