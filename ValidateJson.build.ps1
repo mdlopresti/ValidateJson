@@ -6,6 +6,10 @@ param(
 $module_name = "ValidateJson"
 $nuspecPath = "$BuildRoot\src\$module_name.nuspec"
 
+Enter-BuildTask {
+    Set-location $BuildRoot
+}
+
 # Synopsis: Remove temp files.
 task clean {
 	remove "src\lib\**", "src\$module_name.nuspec", "src\$module_name.psd1", "*.zip", "dist"
@@ -18,7 +22,7 @@ task version {
 task fetch_required_packages {
     $script:RequiredPackages = (Import-PowerShellDataFile "$BuildRoot\src\PackageRequirements.psd1")['Packages']
 }
-task fetch_dll_paths {
+task fetch_dll_paths install_packages, {
     $script:dllPaths = Get-ChildItem "$BuildRoot\src\" -Recurse -include "*net45*" | `
         Select-Object -ExpandProperty Fullname | `
         Where-Object {$_ -notlike "*portable*"}
@@ -56,8 +60,18 @@ task generate_nuspec fetch_required_packages, {
 
 # generate the manifest
 task generate_manifest generate_nuspec, fetch_dll_paths, {
+    Set-location "$BuildRoot\src"
     $manifest = [xml](Get-Content $nuspecPath)
-    New-ModuleManifest -Path "$BuildRoot\src\$module_name.psd1" `
+    if((git branch --show-current) -ne "main") {
+        $extraParams = @{
+            privateData = @{
+                Prerelease = "dev"
+            }
+        }
+    } else {
+        $extraParams = @{}
+    }
+    New-ModuleManifest -Path ".\$module_name.psd1" `
         -Description $manifest.package.metadata.description `
         -Author "mdlopresti" `
         -FunctionsToExport "Test-Json" `
@@ -71,7 +85,21 @@ task generate_manifest generate_nuspec, fetch_dll_paths, {
         -Tags $manifest.package.metadata.tags `
         -LicenseUri ($manifest.package.metadata.projectUrl + "/blob/main/LICENSE.md") `
         -ProjectUri $manifest.package.metadata.projectUrl `
-        -FileList ($script:dllPaths | foreach-object { $_.replace("$BuildRoot\src",".")})
+        -FileList (
+            $script:dllPaths | `
+            foreach-object { 
+                Get-ChildItem -Path $_ -Recurse -include "*.dll" | `
+                Select-Object -ExpandProperty Fullname
+            }
+        ) `
+        @extraParams
+    
+
+    if((git branch --show-current) -like "feature/*") {
+        $privateData = (Import-PowerShellDataFile "$module_name.psd1")['PrivateData']
+        $privateData["PSData"]["Prerelease"] = "dev"
+        Update-ModuleManifest -Path "$module_name.psd1" -PrivateData $privateData
+    }
 }
 
 # increase version
