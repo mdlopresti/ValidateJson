@@ -1,5 +1,5 @@
 name: CI
-run-name: ${{ github.actor }} CI ${{ github.event }}
+run-name: ${{ github.actor }} CI ${{ github.event_name }}
 on:
   push:
   pull_request:
@@ -22,18 +22,25 @@ jobs:
         with:
           shell: ${{ env.SHELL }}
 
-      - name: InvokeBuild validate
-        run: Invoke-Build validate
+      - name: Generate Module Manifest
+        run: Invoke-Build generate_manifest
 
       - name: Set Version
         id: version
         run: |
+          pwd
+          ls
           $versionNumber = (Import-PowerShellDataFile .\src\ValidateJson\ValidateJson.psd1)["ModuleVersion"]
           echo "version_number=$versionNumber" >> $GITHUB_OUTPUT
 
-      - name: InvokeBuild generate_package
+      - name: Validate
+        run: Invoke-Build validate
+
+      - name: Generate Package
         if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
-        run: Invoke-Build generate_package -zipPackage $true
+        run: |
+          Invoke-Build clean
+          Invoke-Build generate_package -zipPackage $true
 
       - name: Save Package
         if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
