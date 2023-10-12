@@ -8,7 +8,7 @@ $nuspecPath = "$BuildRoot/$module_name/$module_name.nuspec"
 
 # Synopsis: Remove temp files.
 task clean {
-	remove "$module_name/lib/**", "$module_name/$module_name.nuspec", "$module_name/$module_name.psd1"
+	remove "$module_name/lib/**", "$module_name/$module_name.nuspec", "$module_name/$module_name.psd1", "*.zip", "dist"
 }
 task version {
     $template=[xml](Get-Content "$BuildRoot/tools/nuspec.template")
@@ -93,8 +93,18 @@ task analyze {
     Write-Build green "Script Analysis found no errors"
 }
 
-task generate_package generate_nuspec, {
-    nuget pack "$BuildRoot/$module_name/"
+task generate_package generate_manifest, {
+    New-Item -Path $BuildRoot -Name "dist" -ItemType "directory" -Force | out-null
+    Copy-Item -Path "$BuildRoot/$module_name/*.psm1","$BuildRoot/$module_name/*.psd1" -Destination "$BuildRoot/dist/"
+    Get-ChildItem "$BuildRoot/$module_name/" -Recurse -include "*net45*" | `
+        Select-Object -ExpandProperty Fullname | `
+        Where-Object {$_ -notlike "*portable*"} | `
+        foreach-object {
+            $fullpath = $_
+            $relativePath = $fullpath.replace("$BuildRoot\$module_name",".")
+            Copy-Item -Path $fullpath -Destination "$BuildRoot\dist\$relativePath" -Recurse
+        }
+
 }
 
 task . generate_nuspec, generate_manifest, install_packages, analyze, generate_package

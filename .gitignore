@@ -3,3 +3,4 @@
 *.nupkg
 ValidateJson/ValidateJson.nuspec
 ValidateJson/ValidateJson.psd1
+dist
