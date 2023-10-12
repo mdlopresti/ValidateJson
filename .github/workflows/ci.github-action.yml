@@ -30,6 +30,8 @@ jobs:
 
   package:
     needs: validate
+    permissions:
+      contents: write
     runs-on: windows-latest
     defaults:
       run:
