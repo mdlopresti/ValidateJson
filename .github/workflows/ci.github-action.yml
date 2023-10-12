@@ -53,9 +53,6 @@ jobs:
           $versionNumber = (Import-PowerShellDataFile .\src\ValidateJson.psd1)["ModuleVersion"]
           Write-Output "version_number=$versionNumber" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-      - name: Put Version Number in Package
-        run: Move-Item dist/ValidateJson.zip dist/ValidateJson-${{ steps.version.outputs.version_number }}.zip
-
       - name: Save Package
         uses: actions/upload-artifact@v3
         with:
@@ -80,10 +77,13 @@ jobs:
       - name: Get Version
         id: version
         run: |
-          Expand-Archive -Path ValidateJson.zip
-          $versionNumber = (Import-PowerShellDataFile .\ValidateJson\ValidateJson.psd1)["ModuleVersion"]
+          Expand-Archive -Path package.zip
+          $versionNumber = (Import-PowerShellDataFile .\package\ValidateJson.psd1)["ModuleVersion"]
           Write-Output "version_number=$versionNumber" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          Remove-Item -Path .\ValidateJson\ -Force -Recurse
+          Remove-Item -Path .\package\ -Force -Recurse
+
+      - name: Put Version Number in Package
+        run: Move-Item package.zip ValidateJson-${{ steps.version.outputs.version_number }}.zip
 
       - name: Create Release
         id: create_release
@@ -93,4 +93,4 @@ jobs:
           prerelease: ${{ github.ref != 'refs/heads/main' }}
           token: ${{ secrets.GITHUB_TOKEN }}
           files: |
-            dist/ValidateJson.zip
+            ValidateJson-${{ steps.version.outputs.version_number }}.zip
