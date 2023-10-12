@@ -77,9 +77,9 @@ jobs:
         id: version
         run: |
           Expand-Archive -Path ValidateJson.zip
-          $versionNumber = (Import-PowerShellDataFile .\package\ValidateJson.psd1)["ModuleVersion"]
+          $versionNumber = (Import-PowerShellDataFile .\ValidateJson\ValidateJson.psd1)["ModuleVersion"]
           Write-Output "version_number=$versionNumber" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
-          Remove-Item -Path .\package\ -Force -Recurse
+          Remove-Item -Path .\ValidateJson\ -Force -Recurse
 
       - name: Put Version Number in Package
         run: Move-Item ValidateJson.zip ValidateJson-${{ steps.version.outputs.version_number }}.zip
