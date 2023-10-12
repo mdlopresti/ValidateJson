@@ -5,7 +5,8 @@ on:
       - feature/*
       - main
     paths:
-      - .github/**
+      - .github/template/**
+      - .github/workflows/ci.github-action.yml
       - src/**
       - tools/nuspec.template
       - ValidateJson.build.ps1
@@ -92,6 +93,7 @@ jobs:
           RUN_ID: ${{ github.run_id }}
         run: |
           Write-Output "tag=v$env:VERSION.$env:RUN_ID" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Output "release_name=Development Release $env:VERSION.$env:RUN_ID" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Build Prod Tag
         id: prod_tag
@@ -101,11 +103,12 @@ jobs:
           RUN_ID: ${{ github.run_id }}
         run: |
           Write-Output "tag=v$env:VERSION.$env:RUN_ID" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
+          Write-Output "release_name=Production Release $env:VERSION" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
       - name: Create Release
         uses: "marvinpinto/action-automatic-releases@latest"
         with:
-          title: Release ${{ github.ref }} ${{ steps.version.outputs.version_number }}
+          title: ${{ join(steps.*.outputs.release_name) }}
           automatic_release_tag: ${{ join(steps.*.outputs.tag) }}
           prerelease: ${{ github.ref != 'refs/heads/main' }}
           repo_token: ${{ secrets.GITHUB_TOKEN }}
