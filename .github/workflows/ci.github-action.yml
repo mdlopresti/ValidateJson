@@ -4,6 +4,11 @@ on:
     branches:
       - feature/*
       - main
+    paths:
+      - .github/**
+      - src/**
+      - tools/nuspec.template
+      - ValidateJson.build.ps1
   pull_request:
     branches:
       - main

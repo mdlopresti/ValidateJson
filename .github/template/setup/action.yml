@@ -9,23 +9,8 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install Powershell Modules
-      shell: ${{ inputs.shell }}
-      run: Install-Module InvokeBuild,PSScriptAnalyzer -Scope CurrentUser -Force
+    - shell: ${{ inputs.shell }}
+      run: choco install winget --confirm --accept-license --force
 
-    - name: Install winget
-      uses: Cyberboss/install-winget@v1
-
-    - name: Install NuGet
-      shell: ${{ inputs.shell }}
-      run: |
-        if($(winget list --id Microsoft.NuGet --disable-interactivity --accept-source-agreements|out-string) -like '*No installed package found*') {
-          winget install -e --id Microsoft.NuGet --disable-interactivity --accept-source-agreements
-        }
-
-    - name: Configure NuGet
-      shell: ${{ inputs.shell }}
-      run: |
-        if((nuget sources | out-string) -notlike '*https://api.nuget.org/v3/index.json*') {
-          nuget sources Add -Name 'nuget.org' -Source 'https://api.nuget.org/v3/index.json'
-        }
+    - shell: ${{ inputs.shell }}
+      run: .\tools\dev-init.ps1
