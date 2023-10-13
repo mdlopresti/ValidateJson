@@ -1,4 +1,5 @@
-Install-Module InvokeBuild,PSScriptAnalyzer -Scope CurrentUser -Force
+Install-Module InvokeBuild,PSScriptAnalyzer,platyPS -Scope CurrentUser -Force
+Install-Module Pester -Scope CurrentUser -MinimumVersion "5.0.0"
 
 if($(winget list --id Microsoft.NuGet --disable-interactivity --accept-source-agreements|out-string) -like '*No installed package found*') {
     winget install -e --id Microsoft.NuGet --disable-interactivity --accept-source-agreements

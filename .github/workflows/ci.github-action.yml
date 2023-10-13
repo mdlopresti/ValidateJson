@@ -8,7 +8,7 @@ on:
       - .github/template/**
       - .github/workflows/ci.github-action.yml
       - src/**
-      - tools/nuspec.template
+      - tools/**
       - ValidateJson.build.ps1
   pull_request:
     branches:
@@ -20,6 +20,8 @@ env:
 jobs:
   test:
     runs-on: windows-latest
+    permissions:
+      checks: write
     defaults:
       run:
         shell: ${{ env.SHELL }}
@@ -30,9 +32,18 @@ jobs:
         uses: "./.github/template/setup"
         with:
           shell: ${{ env.SHELL }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate
-        run: Invoke-Build validate
+        run: Invoke-Build validate -ci $true
+
+      - name: Report Test Results
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: test_results
+          path: test/result/*Test-Result.XML
+          reporter: java-junit
 
   package:
     needs: test
@@ -47,6 +58,7 @@ jobs:
         uses: "./.github/template/setup"
         with:
           shell: ${{ env.SHELL }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Package
         run: |

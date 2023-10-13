@@ -36,6 +36,16 @@
             }
         },
         {
+            "label": "test",
+            "type": "shell",
+            "command": "Invoke-Build test",
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "test",
+                "isDefault": true
+            }
+        },
+        {
             "label": "rebuild",
             "type": "shell",
             "command": "Invoke-Build -Task rebuild",
@@ -54,7 +64,7 @@
             "command": ".\\tools\\dev-init.ps1",
             "problemMatcher": "$msCompile",
             "runOptions": {
-                "runOn": "folderOpen",
+                "runOn": "folderOpen"
             },
             "presentation": {
                 "echo": true,
