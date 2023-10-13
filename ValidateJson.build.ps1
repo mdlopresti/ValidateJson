@@ -15,7 +15,11 @@ Enter-BuildTask {
 task clean {
 	remove "src\lib\**", "src\$module_name.nuspec", "src\$module_name.psd1", "*.zip", "dist"
 }
-task version {
+
+
+
+# Fetch values
+task fetch_version {
     $template=[xml](Get-Content "$BuildRoot\tools\nuspec.template")
     $script:Version = $template.package.metadata.version
     Write-Build Green "Version is $script:Version"
@@ -28,8 +32,9 @@ task fetch_dll_paths install_packages, {
         Select-Object -ExpandProperty Fullname | `
         Where-Object {$_ -notlike "*portable*"}
 }
+task fetch fetch_version, fetch_required_packages, fetch_dll_paths
 
-# install nuget packages
+# build out codebase
 task install_packages fetch_required_packages, {
     $script:RequiredPackages | foreach-object {
         if(-not (Test-Path "$BuildRoot\src\lib\$($_['package']).$($_['version'])")) {
@@ -41,8 +46,6 @@ task install_packages fetch_required_packages, {
         
     }
 }
-
-# generate the nuspec file
 task generate_nuspec fetch_required_packages, {
     if(Test-Path $nuspecPath){
         $manifest = [xml](Get-Content $nuspecPath)
@@ -58,8 +61,6 @@ task generate_nuspec fetch_required_packages, {
 
     $manifest.Save($nuspecPath)
 }
-
-# generate the manifest
 task generate_manifest generate_nuspec, fetch_dll_paths, {
     Set-location "$BuildRoot\src"
     $manifest = [xml](Get-Content $nuspecPath)
@@ -102,26 +103,9 @@ task generate_manifest generate_nuspec, fetch_dll_paths, {
         Update-ModuleManifest -Path "$module_name.psd1" -PrivateData $privateData
     }
 }
+task rebuild clean, generate_manifest, install_packages
 
-# increase version
-task version_bump version, {
-    $versionParts = $script:Version.split(".")
-    [int]$major = $versionParts[0]
-    [int]$minor = $versionParts[1]
-    [int]$patch = $versionParts[2]
-    $patch = $patch + 1
-    $script:Version="$major.$minor.$patch"
-    
-    $manifest = [xml](Get-Content $nuspecPath)
-    $manifest.package.metadata.version = $script:Version
-    $manifest.Save($nuspecPath)
-    $manifestTemplate = [xml](Get-Content "$BuildRoot\tools\nuspec.template")
-    $manifestTemplate.package.metadata.version = $script:Version
-    $manifestTemplate.Save("$BuildRoot\tools\nuspec.template")
-
-    Update-ModuleManifest -Path "$BuildRoot\src\$module_name.psd1" -ModuleVersion $script:Version
-}
-
+# test/validate
 task analyze {
     $output = Invoke-ScriptAnalyzer "$BuildRoot\src\$module_name.psm1"
     if($output){
@@ -130,7 +114,12 @@ task analyze {
     }
     Write-Build green "Script Analysis found no errors"
 }
+task test {
+    Invoke-Pester
+}
+task validate generate_nuspec, generate_manifest, install_packages, analyze, test
 
+# generate package
 task generate_package generate_manifest, {
     New-Item -Path $BuildRoot -Name "dist" -ItemType "directory" -Force | out-null
     New-Item -Path "$BuildRoot\dist" -Name $module_name -ItemType "directory" -Force | out-null
@@ -147,15 +136,12 @@ task generate_package generate_manifest, {
         Compress-Archive -Path "$BuildRoot\dist\$module_name\*" -DestinationPath "$BuildRoot\dist\$module_name.zip"
     }
 }
-
-task . generate_nuspec, generate_manifest, install_packages, analyze, generate_package
-
-task validate generate_nuspec, generate_manifest, install_packages, analyze
-
-task rebuild clean, generate_manifest, install_packages
-
 task package rebuild, generate_package, analyze
 
+# publish package
 task publish install_packages, generate_package, {
     Publish-Module -Path "$BuildRoot\dist\$module_name" -NuGetApiKey $env:NuGetApiKey -Force
 }
+
+# default tasks
+task . generate_package, validate
