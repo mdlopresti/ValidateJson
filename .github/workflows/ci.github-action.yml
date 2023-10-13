@@ -30,6 +30,7 @@ jobs:
         uses: "./.github/template/setup"
         with:
           shell: ${{ env.SHELL }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Validate
         run: Invoke-Build validate -ci $true
@@ -55,6 +56,7 @@ jobs:
         uses: "./.github/template/setup"
         with:
           shell: ${{ env.SHELL }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Package
         run: |

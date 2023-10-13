@@ -5,13 +5,15 @@ inputs:
   shell:
     description: What shell to use
     default: powershell
+  github_token:
+    description: Github token
 
 runs:
   using: "composite"
   steps:
     - uses: Cyberboss/install-winget@v1
       with:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.github_token }}
 
     - shell: ${{ inputs.shell }}
       run: .\tools\dev-init.ps1
