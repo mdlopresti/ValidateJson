@@ -84,7 +84,7 @@ function Test-Json {
         [String]
         $SchemaFile
     )
-
+process {
     switch ($PSCmdlet.ParameterSetName) {
         "Json" {
             try {
@@ -103,4 +103,5 @@ function Test-Json {
             return validate($json,$(Get-Content -Path $SchemaFile))
         }
     }
+}
 }
