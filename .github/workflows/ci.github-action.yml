@@ -41,7 +41,7 @@ jobs:
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
-          name: Pester Tests
+          name: test_results
           path: test/result/*Test-Result.XML
           reporter: java-junit
 
