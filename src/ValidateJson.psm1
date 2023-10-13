@@ -63,13 +63,15 @@ function Test-Json {
         Specifies a schema file used to validate the JSON input. When used, the Test-Json returns $true only if the JSON input conforms to the schema defined in the file specified by the SchemaFile parameter.
     .EXAMPLE
         PS> "{'name': 'Ashley', 'age': 25}" | Test-Json
-        True
+        Returns Boolean
+    .LINK
+        https://github.com/mdlopresti/ValidateJson/blob/main/docs/Test-Json.md
     #>
     [CmdletBinding(DefaultParameterSetName = 'Json')]
     [OutputType([Boolean])]
     param (
-        [Parameter(Mandatory, ParameterSetName = 'Json', Position = 0)]
-        [Parameter(Mandatory, ParameterSetName = 'Schema', Position = 0)]
+        [Parameter(Mandatory, ParameterSetName = 'Json', Position = 0,ValueFromPipeline)]
+        [Parameter(Mandatory, ParameterSetName = 'Schema', Position = 0,ValueFromPipeline)]
         [Parameter(Mandatory, ParameterSetName = 'File')]
         [String]
         $Json,
