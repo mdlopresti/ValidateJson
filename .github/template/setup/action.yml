@@ -9,8 +9,9 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - shell: ${{ inputs.shell }}
-      run: choco install winget --confirm --accept-license --force
+    - uses: Cyberboss/install-winget@v1
+      with:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     - shell: ${{ inputs.shell }}
       run: .\tools\dev-init.ps1
