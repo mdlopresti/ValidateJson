@@ -19,9 +19,7 @@ Describe "Checking Help file on <_>" -ForEach $commands {
     It "Should have examples" {
         $help.examples | Should -Not -BeNullOrEmpty
     }
-    It "All Parameters Should have a description" {
-        $help.parameters.parameter | foreach-object {
-            $_.description.Text | Should -Not -BeNullOrEmpty
-        }
+    It "Parameter <Name> Should have a description" -ForEach $help.parameters.parameter {
+        $_.description.Text | Should -Not -BeNullOrEmpty
     }
 }
