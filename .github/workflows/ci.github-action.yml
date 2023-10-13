@@ -8,7 +8,7 @@ on:
       - .github/template/**
       - .github/workflows/ci.github-action.yml
       - src/**
-      - tools/nuspec.template
+      - tools/**
       - ValidateJson.build.ps1
   pull_request:
     branches:
