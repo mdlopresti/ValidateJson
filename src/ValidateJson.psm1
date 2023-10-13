@@ -61,6 +61,9 @@ function Test-Json {
         Specifies a schema to validate the JSON input against. If passed, Test-Json validates that the JSON input conforms to the spec specified by the Schema parameter and return $true only if the input conforms to the provided schema.
     .PARAMETER SchemaFile
         Specifies a schema file used to validate the JSON input. When used, the Test-Json returns $true only if the JSON input conforms to the schema defined in the file specified by the SchemaFile parameter.
+    .EXAMPLE
+        PS> "{'name': 'Ashley', 'age': 25}" | Test-Json
+        True
     #>
     [CmdletBinding(DefaultParameterSetName = 'Json')]
     [OutputType([Boolean])]
