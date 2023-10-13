@@ -37,7 +37,7 @@ jobs:
       - name: Validate
         run: Invoke-Build validate -ci $true
 
-      - name: Test Report
+      - name: Report Test Results
         uses: dorny/test-reporter@v1
         if: success() || failure()
         with:
