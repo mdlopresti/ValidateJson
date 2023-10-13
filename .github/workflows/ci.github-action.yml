@@ -32,7 +32,15 @@ jobs:
           shell: ${{ env.SHELL }}
 
       - name: Validate
-        run: Invoke-Build validate
+        run: Invoke-Build validate -ci $true
+
+      - name: Test Report
+        uses: dorny/test-reporter@v1
+        if: success() || failure()
+        with:
+          name: Pester Tests
+          path: test/result/*Test-Result.XML
+          reporter: java-junit
 
   package:
     needs: test

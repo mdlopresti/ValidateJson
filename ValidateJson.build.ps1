@@ -2,7 +2,8 @@ param(
     # Custom build root, still the original $BuildRoot by default.
     $BuildRoot = $BuildRoot,
     $module_name = "ValidateJson",
-    $zipPackage = $false
+    $zipPackage = $false,
+    $ci=$false
 )
 $module_name = "ValidateJson"
 $nuspecPath = "$BuildRoot\src\$module_name.nuspec"
@@ -13,7 +14,7 @@ Enter-BuildTask {
 
 # Synopsis: Remove temp files.
 task clean {
-	remove "src\lib\**", "src\$module_name.nuspec", "src\$module_name.psd1", "*.zip", "dist"
+	remove "src\lib\**", "src\$module_name.nuspec", "src\$module_name.psd1", "*.zip", "dist", "test\result"
 }
 
 
@@ -115,7 +116,16 @@ task analyze {
     Write-Build green "Script Analysis found no errors"
 }
 task test {
-    Invoke-Pester
+    if($ci){
+        New-Item -Path "$BuildRoot\test\" -Name "result" -ItemType "directory" -Force | out-null
+        Invoke-Pester -OutputFile "$BuildRoot\test\result\Pester-Test-Result.XML" `
+            -OutputFormat "JUnitXML"
+        Invoke-Pester -CodeCoverage "$BuildRoot\src\$module_name.psm1" `
+            -CodeCoverageOutputFile "$BuildRoot\test\result\Pester-Coverage.xml" `
+            -CodeCoverageOutputFileFormat JaCoCo
+    } else {
+        Invoke-Pester
+    }
 }
 task validate generate_nuspec, generate_manifest, install_packages, analyze, test
 
