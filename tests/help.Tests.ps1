@@ -1,7 +1,7 @@
 $commands = (Import-PowerShellDataFile "$PSScriptRoot\..\src\ValidateJson.psd1")["FunctionsToExport"]
 Write-host "$PSScriptRoot\..\src\ValidateJson.psd1"
         
-Describe "Checking Help file on <>" -ForEach $commands {
+Describe "Checking Help file on <_>" -ForEach $commands {
     BeforeAll {
         $command = $_
         Import-Module "$PSScriptRoot\..\src\ValidateJson.psd1"
