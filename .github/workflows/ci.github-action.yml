@@ -20,6 +20,8 @@ env:
 jobs:
   test:
     runs-on: windows-latest
+    permissions:
+      checks: write
     defaults:
       run:
         shell: ${{ env.SHELL }}
