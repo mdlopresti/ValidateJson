@@ -17,8 +17,6 @@ task clean {
 	remove "src\lib\**", "src\$module_name.nuspec", "src\$module_name.psd1", "*.zip", "dist", "test\result"
 }
 
-
-
 # Fetch values
 task fetch_version {
     $template=[xml](Get-Content "$BuildRoot\tools\nuspec.template")
