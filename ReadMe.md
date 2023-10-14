@@ -18,3 +18,4 @@ The project relies on the  [NJsonSchema](https://github.com/RicoSuter/NJsonSchem
 - GitHub Actions CD w/psgallery publish ~~and GitHub Artifacts~~
 - ~~Pester Unit Testing~~
 - ~~Help docs with [platyPS](https://github.com/PowerShell/platyPS)~~
+- Add Code coverage report
