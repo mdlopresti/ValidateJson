@@ -90,7 +90,7 @@ function Test-Json {
     param (
         [Parameter(Mandatory, ParameterSetName = 'Json', Position = 0,ValueFromPipeline)]
         [Parameter(Mandatory, ParameterSetName = 'Schema', Position = 0,ValueFromPipeline)]
-        [Parameter(Mandatory, ParameterSetName = 'File')]
+        [Parameter(Mandatory, ParameterSetName = 'File', Position = 0,ValueFromPipeline)]
         [String]
         $Json,
 
@@ -118,7 +118,7 @@ process {
             return validate -JsonString $Json -SchemaString $Schema
         }
         "File" {
-            return validate($json,$(Get-Content -Path $SchemaFile))
+            return validate -JsonString $Json -SchemaString $(Get-Content -Path $SchemaFile)
         }
     }
 }
