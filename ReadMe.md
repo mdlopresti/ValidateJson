@@ -16,5 +16,6 @@ The project relies on the  [NJsonSchema](https://github.com/RicoSuter/NJsonSchem
 - ~~GitHub Actions CI~~
 - ~~CI required on PRs~~
 - GitHub Actions CD w/psgallery publish ~~and GitHub Artifacts~~
-- STARTED Pester Unit Testing
+- ~~Pester Unit Testing~~
 - ~~Help docs with [platyPS](https://github.com/PowerShell/platyPS)~~
+- Add Code coverage report

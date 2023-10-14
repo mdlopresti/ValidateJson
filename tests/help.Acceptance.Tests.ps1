@@ -2,6 +2,8 @@ $commands = (Import-PowerShellDataFile "$PSScriptRoot\..\src\ValidateJson.psd1")
 Write-host "$PSScriptRoot\..\src\ValidateJson.psd1"
         
 Describe "Checking Help file on <_>" -ForEach $commands {
+    $command = $_
+
     BeforeAll {
         $command = $_
         Import-Module "$PSScriptRoot\..\src\ValidateJson.psd1"
@@ -19,7 +21,8 @@ Describe "Checking Help file on <_>" -ForEach $commands {
     It "Should have examples" {
         $help.examples | Should -Not -BeNullOrEmpty
     }
-    It "Parameter <Name> Should have a description" -ForEach $help.parameters.parameter {
+    It "Parameter <Name> Should have a description" `
+        -ForEach $(Get-Help -Name $_ -Category "Function").parameters.parameter {
         $_.description.Text | Should -Not -BeNullOrEmpty
     }
 }

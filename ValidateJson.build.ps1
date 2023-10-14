@@ -118,9 +118,9 @@ task test {
         New-Item -Path "$BuildRoot\test\" -Name "result" -ItemType "directory" -Force | out-null
         Invoke-Pester -OutputFile "$BuildRoot\test\result\Pester-Test-Result.XML" `
             -OutputFormat "JUnitXML"
-        Invoke-Pester -CodeCoverage "$BuildRoot\src\$module_name.psm1" `
-            -CodeCoverageOutputFile "$BuildRoot\test\result\Pester-Coverage.xml" `
-            -CodeCoverageOutputFileFormat JaCoCo
+        # Invoke-Pester -CodeCoverage "$BuildRoot\src\$module_name.psm1" `
+        #     -CodeCoverageOutputFile "$BuildRoot\test\result\Pester-Coverage.xml" `
+        #     -CodeCoverageOutputFileFormat JaCoCo
     } else {
         Invoke-Pester
     }
