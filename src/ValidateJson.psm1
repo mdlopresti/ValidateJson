@@ -39,11 +39,29 @@ foreach ($dll in pullPackageList) {
 
 
 function validate {
+    [CmdletBinding()]
+    [OutputType([Boolean])]
     param (
-        $Json,
-        $Schema
+        $JsonString,
+        $SchemaString
     )
-    return [NJsonSchema.Validation.JsonSchemaValidator]::new().Validate($json,$Schema)
+    $schemaObject = [NJsonSchema.JsonSchema]::FromJsonAsync(
+        [string]$SchemaString #type flag is required to make this work
+    ).GetAwaiter().GetResult()
+    try {
+        $result = $schemaObject.Validate($JsonString)
+        if($result.count -eq 0) {
+            return $true
+        } else {
+            return $result
+        }
+    } catch {
+        if($_.FullyQualifiedErrorId -eq "JsonReaderException") {
+            return $false
+        } else {
+            throw $_
+        }
+    }
 }
 
 
@@ -72,7 +90,7 @@ function Test-Json {
     param (
         [Parameter(Mandatory, ParameterSetName = 'Json', Position = 0,ValueFromPipeline)]
         [Parameter(Mandatory, ParameterSetName = 'Schema', Position = 0,ValueFromPipeline)]
-        [Parameter(Mandatory, ParameterSetName = 'File')]
+        [Parameter(Mandatory, ParameterSetName = 'File', Position = 0,ValueFromPipeline)]
         [String]
         $Json,
 
@@ -97,10 +115,10 @@ process {
 
         }
         "Schema" {
-            return validate($json,$Schema)
+            return validate -JsonString $Json -SchemaString $Schema
         }
         "File" {
-            return validate($json,$(Get-Content -Path $SchemaFile))
+            return validate -JsonString $Json -SchemaString $(Get-Content -Path $SchemaFile)
         }
     }
 }
