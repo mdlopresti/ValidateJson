@@ -45,19 +45,22 @@ function validate {
         $JsonString,
         $SchemaString
     )
-    $schemaObject = [NJsonSchema.JsonSchema]::FromJsonAsync(
-        [string]$SchemaString #type flag is required to make this work
-    ).GetAwaiter().GetResult()
     try {
+        $schemaObject = [NJsonSchema.JsonSchema]::FromJsonAsync(
+            [string]$SchemaString #type flag is required to make this work
+        ).GetAwaiter().GetResult()
+
         $result = $schemaObject.Validate($JsonString)
         if($result.count -eq 0) {
             return $true
         } else {
-            return $result
+            ForEach-Object -InputObject $result -Process {
+                return [System.Exception]::new("Test-Json: $($_.Kind): '$($_.Path)'")
+            }
         }
     } catch {
         if($_.FullyQualifiedErrorId -eq "JsonReaderException") {
-            return $false
+            return [System.Exception]::new($_.Exception.InnerException.Message)
         } else {
             throw $_
         }
@@ -85,40 +88,53 @@ function Test-Json {
     .LINK
         https://github.com/mdlopresti/ValidateJson/blob/main/docs/Test-Json.md
     #>
-    [CmdletBinding(DefaultParameterSetName = "JsonPathParameterSet")]
+    [CmdletBinding(DefaultParameterSetName = "JsonString")]
     [OutputType([Boolean])]
     param (
-        [Parameter(Mandatory, ParameterSetName = "JsonPathParameterSet", Position = 0,ValueFromPipeline)]
-        [Parameter(Mandatory, ParameterSetName = "JsonPathWithSchemaStringParameterSet", Position = 0,ValueFromPipeline)]
-        [Parameter(Mandatory, ParameterSetName = "JsonPathWithSchemaFileParameterSet", Position = 0,ValueFromPipeline)]
+        [Parameter(Mandatory, ParameterSetName = "JsonString", Position = 0,ValueFromPipeline)]
+        [Parameter(Mandatory, ParameterSetName = "JsonStringWithSchemaString", Position = 0,ValueFromPipeline)]
+        [Parameter(Mandatory, ParameterSetName = "JsonStringWithSchemaFile", Position = 0,ValueFromPipeline)]
         [String]
         $Json,
 
-        [Parameter(Mandatory, ParameterSetName = "JsonPathWithSchemaStringParameterSet", Position = 1)]
+        [Parameter(Mandatory, ParameterSetName = "JsonStringWithSchemaString", Position = 1)]
         [String]
         $Schema,
 
-        [Parameter(Mandatory, ParameterSetName = "JsonPathWithSchemaFileParameterSet")]
+        [Parameter(Mandatory, ParameterSetName = "JsonStringWithSchemaFile")]
         [String]
         $SchemaFile
     )
 process {
     switch ($PSCmdlet.ParameterSetName) {
-        "JsonPathParameterSet" {
+        "JsonString" {
             try {
                 ConvertFrom-Json -InputObject $Json | Out-Null
                 return $true
             }
             catch {
-                return $false
+                Write-Error -Message $_ -Category InvalidData -TargetObject $Json
+                $false
             }
 
         }
-        "JsonPathWithSchemaStringParameterSet" {
-            return validate -JsonString $Json -SchemaString $Schema
+        "JsonStringWithSchemaString" {
+            $result = validate -JsonString $Json -SchemaString $Schema
+            if($result.GetType().FullName -eq "System.Exception"){
+                Write-Error -Exception $result -Message $result.Exception.InnerException.Message
+                return $false
+            } else {
+                return $result
+            }
         }
-        "JsonPathWithSchemaFileParameterSet" {
-            return validate -JsonString $Json -SchemaString $(Get-Content -Path $SchemaFile)
+        "JsonStringWithSchemaFile" {
+            $result = validate -JsonString $Json -SchemaString $(Get-Content -Path $SchemaFile)
+            if($result.GetType().FullName -eq "System.Boolean"){
+                return $result
+            } else {
+                Write-Error -Exception $result -Message $result.Exception.InnerException.Message
+                return $false
+            }
         }
     }
 }
