@@ -119,7 +119,7 @@ task test {
         $pesterConfig = New-PesterConfiguration -Hashtable @{
             TestResult=@{
                 Enabled=$true
-                OutputPath="\test\result\Pester-Test-Result.XML"
+                OutputPath="$BuildRoot\test\result\Pester-Test-Result.XML"
                 OutputFormat="JUnitXml"
             }
         }
