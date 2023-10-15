@@ -5,3 +5,6 @@ src/ValidateJson.nuspec
 src/ValidateJson.psd1
 dist
 coverage.xml
+test\**\**
+test\result\Pester-Test-Result.XML
+testResults.xml
