@@ -40,7 +40,7 @@ foreach ($dll in pullPackageList) {
 
 function validate {
     [CmdletBinding()]
-    [OutputType([Boolean])]
+    [OutputType([Boolean],[System.Exception])]
     param (
         $JsonString,
         $SchemaString
