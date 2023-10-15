@@ -10,15 +10,15 @@ Describe "Json ParameterSet" {
 
     It "Handle pipeline input" {
         $validJson | Test-Json | Should -BeTrue
-        $invalidJson | Test-Json 2> $null | Should -Not -BeTrue
+        $invalidJson | Test-Json -ErrorAction SilentlyContinue | Should -Not -BeTrue
     }
     It "Handle positional argument" {
         Test-Json $validJson | Should -BeTrue
-        Test-Json $invalidJson 2> $null | Should -Not -BeTrue
+        Test-Json $invalidJson -ErrorAction SilentlyContinue | Should -Not -BeTrue
     }
     It "Handle explicit argument" {
         Test-Json -Json $validJson | Should -BeTrue
-        Test-Json -Json $invalidJson 2> $null | Should -Not -BeTrue
+        Test-Json -Json $invalidJson -ErrorAction SilentlyContinue | Should -Not -BeTrue
     }
 }
 
@@ -33,21 +33,21 @@ Describe "Schema ParameterSet" {
 
     It "Handle pipeline input" {
         $validJson | Test-Json -Schema $schema | Should -BeTrue
-        $invalidJsonObject | Test-Json -Schema $schema -ErrorVariable errorvar 2> $null | Should -Not -BeTrue
+        $invalidJsonObject | Test-Json -Schema $schema -ErrorVariable errorvar -ErrorAction SilentlyContinue | Should -Not -BeTrue
         $errorvar.FullyQualifiedErrorId | Should -Be "System.Exception,Test-Json"
-        $invalidJson | Test-Json -Schema $schema 2> $null | Should -Not -BeTrue
+        $invalidJson | Test-Json -Schema $schema -ErrorAction SilentlyContinue | Should -Not -BeTrue
     }
     It "Handle positional argument" {
         Test-Json $validJson -Schema $schema | Should -BeTrue
-        Test-Json $invalidJsonObject -Schema $schema -ErrorVariable errorvar 2> $null | Should -Not -BeTrue
+        Test-Json $invalidJsonObject -Schema $schema -ErrorVariable errorvar -ErrorAction SilentlyContinue | Should -Not -BeTrue
         $errorvar.FullyQualifiedErrorId | Should -Be "System.Exception,Test-Json"
-        Test-Json $invalidJson -Schema $schema 2> $null | Should -Not -BeTrue
+        Test-Json $invalidJson -Schema $schema -ErrorAction SilentlyContinue | Should -Not -BeTrue
     }
     It "Handle explicit argument" {
         Test-Json -Json $validJson -Schema $schema | Should -BeTrue
-        Test-Json -Json $invalidJsonObject -Schema $schema -ErrorVariable errorvar 2> $null | Should -Not -BeTrue
+        Test-Json -Json $invalidJsonObject -Schema $schema -ErrorVariable errorvar -ErrorAction SilentlyContinue | Should -Not -BeTrue
         $errorvar.FullyQualifiedErrorId | Should -Be "System.Exception,Test-Json"
-        Test-Json -Json $invalidJson -Schema $schema 2> $null | Should -Not -BeTrue
+        Test-Json -Json $invalidJson -Schema $schema -ErrorAction SilentlyContinue | Should -Not -BeTrue
     }
 }
 
@@ -63,14 +63,14 @@ Describe "File ParameterSet" {
 
     It "Handle pipeline input" {
         $validJson | Test-Json -SchemaFile $schemaPath | Should -BeTrue
-        $invalidJson | Test-Json -SchemaFile $schemaPath 2> $null | Should -Not -BeTrue
+        $invalidJson | Test-Json -SchemaFile $schemaPath -ErrorAction SilentlyContinue | Should -Not -BeTrue
     }
     It "Handle positional argument" {
         Test-Json $validJson -SchemaFile $schemaPath | Should -BeTrue
-        Test-Json $invalidJson -SchemaFile $schemaPath 2> $null | Should -Not -BeTrue
+        Test-Json $invalidJson -SchemaFile $schemaPath -ErrorAction SilentlyContinue | Should -Not -BeTrue
     }
     It "Handle explicit argument" {
         Test-Json -Json $validJson -SchemaFile $schemaPath | Should -BeTrue
-        Test-Json -Json $invalidJson -SchemaFile $schemaPath 2> $null | Should -Not -BeTrue
+        Test-Json -Json $invalidJson -SchemaFile $schemaPath -ErrorAction SilentlyContinue | Should -Not -BeTrue
     }
 }
