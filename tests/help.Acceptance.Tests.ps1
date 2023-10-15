@@ -1,5 +1,4 @@
 $commands = (Import-PowerShellDataFile "$PSScriptRoot\..\src\ValidateJson.psd1")["FunctionsToExport"]
-Write-host "$PSScriptRoot\..\src\ValidateJson.psd1"
         
 Describe "Checking Help file on <_>" -ForEach $commands {
     $command = $_
@@ -22,7 +21,10 @@ Describe "Checking Help file on <_>" -ForEach $commands {
         $help.examples | Should -Not -BeNullOrEmpty
     }
     It "Parameter <Name> Should have a description" `
-        -ForEach $(Get-Help -Name $_ -Category "Function").parameters.parameter {
-        $_.description.Text | Should -Not -BeNullOrEmpty
+        -ForEach $(
+            Import-Module "$PSScriptRoot\..\src\ValidateJson.psd1"
+            Get-Help -Name $_ -Category "Function"
+        ).parameters.parameter {
+            $_.description.Text | Should -Not -BeNullOrEmpty
+        }
     }
-}
