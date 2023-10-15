@@ -85,26 +85,26 @@ function Test-Json {
     .LINK
         https://github.com/mdlopresti/ValidateJson/blob/main/docs/Test-Json.md
     #>
-    [CmdletBinding(DefaultParameterSetName = 'Json')]
+    [CmdletBinding(DefaultParameterSetName = "JsonPathParameterSet")]
     [OutputType([Boolean])]
     param (
-        [Parameter(Mandatory, ParameterSetName = 'Json', Position = 0,ValueFromPipeline)]
-        [Parameter(Mandatory, ParameterSetName = 'Schema', Position = 0,ValueFromPipeline)]
-        [Parameter(Mandatory, ParameterSetName = 'File', Position = 0,ValueFromPipeline)]
+        [Parameter(Mandatory, ParameterSetName = "JsonPathParameterSet", Position = 0,ValueFromPipeline)]
+        [Parameter(Mandatory, ParameterSetName = "JsonPathWithSchemaStringParameterSet", Position = 0,ValueFromPipeline)]
+        [Parameter(Mandatory, ParameterSetName = "JsonPathWithSchemaFileParameterSet", Position = 0,ValueFromPipeline)]
         [String]
         $Json,
 
-        [Parameter(Mandatory, ParameterSetName = 'Schema', Position = 1)]
+        [Parameter(Mandatory, ParameterSetName = "JsonPathWithSchemaStringParameterSet", Position = 1)]
         [String]
         $Schema,
 
-        [Parameter(Mandatory, ParameterSetName = 'File')]
+        [Parameter(Mandatory, ParameterSetName = "JsonPathWithSchemaFileParameterSet")]
         [String]
         $SchemaFile
     )
 process {
     switch ($PSCmdlet.ParameterSetName) {
-        "Json" {
+        "JsonPathParameterSet" {
             try {
                 ConvertFrom-Json -InputObject $Json | Out-Null
                 return $true
@@ -114,10 +114,10 @@ process {
             }
 
         }
-        "Schema" {
+        "JsonPathWithSchemaStringParameterSet" {
             return validate -JsonString $Json -SchemaString $Schema
         }
-        "File" {
+        "JsonPathWithSchemaFileParameterSet" {
             return validate -JsonString $Json -SchemaString $(Get-Content -Path $SchemaFile)
         }
     }
