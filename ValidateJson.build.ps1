@@ -124,9 +124,6 @@ task test {
             }
         }
         Invoke-Pester -Configuration $pesterConfig
-        # Invoke-Pester -CodeCoverage "$BuildRoot\src\$module_name.psm1" `
-        #     -CodeCoverageOutputFile "$BuildRoot\test\result\Pester-Coverage.xml" `
-        #     -CodeCoverageOutputFileFormat JaCoCo
     } else {
         Invoke-Pester
     }
