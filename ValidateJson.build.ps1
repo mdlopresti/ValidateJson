@@ -147,11 +147,15 @@ task generate_package generate_manifest, {
         Compress-Archive -Path "$BuildRoot\dist\$module_name\*" -DestinationPath "$BuildRoot\dist\$module_name.zip"
     }
 }
-task package rebuild, generate_package, analyze
+task package rebuild, generate_package
 
 # publish package
 task publish install_packages, generate_package, {
-    Publish-Module -Path "$BuildRoot\dist\$module_name" -NuGetApiKey $env:NuGetApiKey -Force
+    $extraParams = @{}
+    if($env:RELEASE_NOTES) {
+        $extraParams["ReleaseNotes"] = $env:RELEASE_NOTES
+    }
+    Publish-Module -Path "$BuildRoot\dist\$module_name" -NuGetApiKey $env:NUGET_API_KEY @extraParams -Force
 }
 
 # default tasks

@@ -73,7 +73,7 @@ jobs:
           path: dist/ValidateJson.zip
           retention-days: 7
 
-  release:
+  github_release:
     needs: package
     permissions:
       contents: write
@@ -118,12 +118,49 @@ jobs:
           Write-Output "tag=latest" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
           Write-Output "release_name=v$env:VERSION" | Out-File -FilePath $env:GITHUB_OUTPUT -Encoding utf8 -Append
 
-      - name: Create Release
-        uses: "marvinpinto/action-automatic-releases@latest"
+      - name: Get Merged Pull Request
+        id: merged_pr
+        uses: actions-ecosystem/action-get-merged-pull-request@v1.0.1
+        if: ${{ github.ref == 'refs/heads/main' }}
         with:
-          title: ${{ join(steps.*.outputs.release_name) }}
-          automatic_release_tag: ${{ join(steps.*.outputs.tag) }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Github Release
+        uses: softprops/action-gh-release@v1
+        with:
+          name: ${{ join(steps.*.outputs.release_name) }}
+          tag_name: ${{ join(steps.*.outputs.tag) }}
           prerelease: ${{ github.ref != 'refs/heads/main' }}
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          token: ${{ secrets.GITHUB_TOKEN }}
+          append_body: true
+          body: ${{ steps.merged_pr.body }}
           files: |
             ValidateJson-${{ steps.version.outputs.version_number }}.zip
+
+  psgallery_release:
+    needs: package
+    runs-on: windows-latest
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+    defaults:
+      run:
+        shell: ${{ env.SHELL }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Environment
+        uses: "./.github/template/setup"
+        with:
+          shell: ${{ env.SHELL }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Get Merged Pull Request
+        id: merged_pr
+        uses: actions-ecosystem/action-get-merged-pull-request@v1.0.1
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Publish to Powershell Gallery
+        env:
+          NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
+          RELEASE_NOTES: ${{ steps.merged_pr.body || github.event.pull_request.description || 'GITHUB TEST DEPLOY' }}
+        run: Invoke-Build publish

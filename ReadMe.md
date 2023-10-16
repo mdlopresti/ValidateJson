@@ -1,5 +1,7 @@
 # ValidateJson
 
+[![.github/workflows/ci.github-action.yml](https://github.com/mdlopresti/ValidateJson/actions/workflows/ci.github-action.yml/badge.svg)](https://github.com/mdlopresti/ValidateJson/actions/workflows/ci.github-action.yml)
+
 Json validation for older PowerShell.
 
 ## Description
@@ -15,7 +17,8 @@ The project relies on the  [NJsonSchema](https://github.com/RicoSuter/NJsonSchem
 - ~~Manual Publish to PSGallery~~
 - ~~GitHub Actions CI~~
 - ~~CI required on PRs~~
-- GitHub Actions CD w/psgallery publish ~~and GitHub Artifacts~~
+- ~~GitHub Actions CD w/psgallery publish and GitHub Artifacts~~
 - ~~Pester Unit Testing~~
 - ~~Help docs with [platyPS](https://github.com/PowerShell/platyPS)~~
+- Add documentation update to CI process
 - Add Code coverage report
