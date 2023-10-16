@@ -73,7 +73,7 @@ jobs:
           path: dist/ValidateJson.zip
           retention-days: 7
 
-  gh_release:
+  github_release:
     needs: package
     permissions:
       contents: write
