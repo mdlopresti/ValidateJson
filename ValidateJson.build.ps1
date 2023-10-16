@@ -155,7 +155,13 @@ task publish install_packages, generate_package, {
     if($env:RELEASE_NOTES) {
         $extraParams["ReleaseNotes"] = $env:RELEASE_NOTES
     }
-    Publish-Module -Path "$BuildRoot\dist\$module_name" -NuGetApiKey $env:NUGET_API_KEY @extraParams -Force
+
+    try {
+        Publish-Module -Path "$BuildRoot\dist\$module_name" -NuGetApiKey $env:NUGET_API_KEY @extraParams -ErrorAction Stop
+    }
+    catch [System.Management.Automation.CmdletInvocationException],[System.InvalidOperationException] {
+        Write-Build Yellow "The module '$module_name' cannot be published as the current version is already available in the repository 'https://www.powershellgallery.com/api/v2'"
+    }
 }
 
 # default tasks
