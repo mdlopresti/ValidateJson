@@ -147,7 +147,7 @@ task generate_package generate_manifest, {
         Compress-Archive -Path "$BuildRoot\dist\$module_name\*" -DestinationPath "$BuildRoot\dist\$module_name.zip"
     }
 }
-task package rebuild, generate_package, analyze
+task package rebuild, generate_package
 
 # publish package
 task publish install_packages, generate_package, {
