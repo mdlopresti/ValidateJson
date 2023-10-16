@@ -1,6 +1,6 @@
 # ValidateJson
 
-[![.github/workflows/ci.github-action.yml](https://github.com/mdlopresti/ValidateJson/actions/workflows/ci.github-action.yml/badge.svg)](https://github.com/mdlopresti/ValidateJson/actions/workflows/ci.github-action.yml)
+[![Github Actions Build](https://github.com/mdlopresti/ValidateJson/actions/workflows/ci.github-action.yml/badge.svg)](https://github.com/mdlopresti/ValidateJson/actions/workflows/ci.github-action.yml) ![PowerShell Gallery Version (including pre-releases)](https://img.shields.io/powershellgallery/v/ValidateJson)
 
 Json validation for older PowerShell.
 
