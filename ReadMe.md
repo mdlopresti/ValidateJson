@@ -15,7 +15,7 @@ The project relies on the  [NJsonSchema](https://github.com/RicoSuter/NJsonSchem
 - ~~Manual Publish to PSGallery~~
 - ~~GitHub Actions CI~~
 - ~~CI required on PRs~~
-- GitHub Actions CD w/psgallery publish ~~and GitHub Artifacts~~
+- INPROGRESS GitHub Actions CD w/psgallery publish ~~and GitHub Artifacts~~
 - ~~Pester Unit Testing~~
 - ~~Help docs with [platyPS](https://github.com/PowerShell/platyPS)~~
 - Add Code coverage report
