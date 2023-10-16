@@ -143,4 +143,5 @@ jobs:
           NUGET_API_KEY: ${{ secrets.NUGET_API_KEY }}
           RELEASE_NOTES: ${{ steps.merged_pr.body || github.event.pull_request.description || 'GITHUB TEST DEPLOY' }}
         run: |
+          Install-Module "InvokeBuild" -Scope CurrentUser -Force
           Invoke-Build publish
